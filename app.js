@@ -102,6 +102,7 @@ bot.dialog('/play', [
         }
         else {
             session.send("Did you upload an image? I'm more of a visual person. Try sending me an image or an image URL");
+            session.beginDialog('/play');
         }      
    }
 ]);
