@@ -23,7 +23,7 @@ exports.getEmotionFromStream = stream => {
                     reject(body);
                 }
                 else {
-                    resolve(extractEmotion(body));
+                    resolve(extractEmotion(JSON.parse(body)));
                 }
             }));
         }

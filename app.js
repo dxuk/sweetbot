@@ -2,11 +2,11 @@
 require('dotenv-extended').load();
 
 const builder = require('botbuilder'),
+    emotionService = require('./emotion-service'),
     needle = require("needle"),
     restify = require('restify'),
     url = require('url');
-    validUrl = require('valid-url'),   
-    emotionService = require('./emotion-service');
+    validUrl = require('valid-url');
 
 //=========================================================
 // Bot Setup
@@ -16,11 +16,13 @@ const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
+
 // Create chat bot
 const connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
+
 const bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
 
@@ -60,17 +62,13 @@ bot.on('conversationUpdate', message => {
 //=========================================================
 // Bot Dialogs
 //=========================================================
-bot.dialog('/help', [
-     function (session) {
-        session.endDialog("* start - starts the game \n* give me more - to keep playing \n* about - gives you information about this game \n* help - Displays these commands.");
-    }  
-]);
+bot.dialog('/help', session => {
+    session.endDialog("* start - starts the game \n* give me more - to keep playing \n* about - gives you information about this game \n* help - Displays these commands.");
+});
 
-bot.dialog('/greeting', [
-     function (session) {
-        session.endDialog("Hey!");
-    }  
-]);
+bot.dialog('/greeting', session => {
+    session.endDialog("Hey!");
+});
 
 bot.dialog('/about', session => {
     session.endDialog("The game is about guessing your emotions (don't worry! we do not store the photos). We use the Microsoft Emotions API to do this. \n If you want to play, let me know and I'll give you the emotion you need to act out, all you'll have to do is take a picture and send it to me. \n If you act out the correct emotion I will fire a request to the lovely sweet machine at the Microsoft Stand and you will get a sweet!");
@@ -80,28 +78,27 @@ bot.dialog('/play', [
     function (session) {
         var randNum = Math.floor(Math.random() * emotionList.length);
         session.userData.emotionSelected = emotionList[randNum];
-        builder.Prompts.text(session, "Send me a picture showing the emotion '" + emotionList[randNum] + "'");
-   },
+        builder.Prompts.attachment(session, "Send me a picture showing the emotion '" + emotionList[randNum] + "'");
+    },
 
-   function (session){
+    function (session){
         if (hasImageAttachment(session)) {
-        var stream = getImageStreamFromUrl(session.message.attachments[0]);
-        emotionService
-            .getEmotionFromStream(stream)
-            .then(emotion => handleSuccessResponse(session, emotion))
-            .catch(error => handleErrorResponse(session, error));
+            var stream = getImageStreamFromUrl(session.message.attachments[0]);
+            emotionService
+                .getEmotionFromStream(stream)
+                .then(emotion => handleSuccessResponse(session, emotion))
+                .catch(error => handleErrorResponse(session, error));
         }
         else if(imageUrl = (parseAnchorTag(session.message.text) || (validUrl.isUri(session.message.text)? session.message.text : null))) {
-        emotionService
-            .getEmotionFromUrl(imageUrl)
-            .then(emotion => handleSuccessResponse(session, emotion))
-            .catch(error => handleErrorResponse(session, error));
+            emotionService
+                .getEmotionFromUrl(imageUrl)
+                .then(emotion => handleSuccessResponse(session, emotion))
+                .catch(error => handleErrorResponse(session, error));
         }
         else {
             session.send("Did you upload an image? I'm more of a visual person. Try sending me an image or an image URL");
-            session.beginDialog('/play');
         }      
-   }
+    }
 ]);
 
 
