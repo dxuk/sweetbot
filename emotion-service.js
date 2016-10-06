@@ -3,9 +3,8 @@ const request = require('request').defaults({ encoding: null });
 const EMOTION_URL = "https://api.projectoxford.ai/emotion/v1.0/recognize?subscription-key=" + process.env.MICROSOFT_EMOTION_API_KEY;
 
 /** 
- *  Gets the caption of the image from an image stream
+ *  Gets the emotion of the image from an image stream
  * @param {stream} stream The stream to an image.
- * @return (Promise) Promise with caption string if succeeded, error otherwise
  */
 exports.getEmotionFromStream = stream => {
     return new Promise(
@@ -32,9 +31,8 @@ exports.getEmotionFromStream = stream => {
 }
 
 /** 
- * Gets the caption of the image from an image URL
+ * Gets the emotion of the image from an image URL
  * @param {string} url The URL to an image.
- * @return (Promise) Promise with caption string if succeeded, error otherwise
  */
 exports.getEmotionFromUrl = url => {
     return new Promise(
@@ -60,9 +58,9 @@ exports.getEmotionFromUrl = url => {
 }
 
 /**
- * Extracts the caption description from the response of the Vision API
- * @param {Object} body Response of the Vision API
- * @return {string} Description if caption found, null otherwise.
+ * Extracts the emotion with the highest score
+ * @param {Object} body Response of the Emotion API
+ * @return {string} emotion name if found, null otherwise.
  */
 const extractEmotion = body => {
     if (body) {

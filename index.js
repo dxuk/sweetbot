@@ -1,30 +1,32 @@
-const restify = require('restify');
-const builder = require('botbuilder');
-const needle = require("needle");
-const url = require('url'); 
-const validUrl = require('valid-url'); 
+// This loads the environment variables from the .env file
+require('dotenv-extended').load();
 
-const emotionService = require('./emotion-service');
+const builder = require('botbuilder'),
+    needle = require("needle"),
+    restify = require('restify'),
+    url = require('url');
+    validUrl = require('valid-url'),   
+    emotionService = require('./emotion-service');
 
 //=========================================================
 // Bot Setup
 //=========================================================
 // Setup Restify Server
-var server = restify.createServer();
+const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
 // Create chat bot
-var connector = new builder.ChatConnector({
+const connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-var bot = new builder.UniversalBot(connector);
+const bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
 
 
-var model = process.env.LUIS_MODEL;
-var recognizer = new builder.LuisRecognizer(model);
+const model = process.env.LUIS_MODEL;
+const recognizer = new builder.LuisRecognizer(model);
 var intents = new builder.IntentDialog({ recognizers: [recognizer] });
 
 bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye/i }); 
