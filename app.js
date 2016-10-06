@@ -85,7 +85,7 @@ bot.dialog('/play', [
 
    function (session){
         if (hasImageAttachment(session)) {
-        var stream = session.message.attachments[0].contentUrl;    
+        var stream = session.message.attachments[0];    
         emotionService
             .getEmotionFromStream(stream)
             .then(emotion => handleSuccessResponse(session, emotion))
