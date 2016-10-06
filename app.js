@@ -85,20 +85,22 @@ bot.dialog('/play', [
 
    function (session){
         if (hasImageAttachment(session)) {
-        var stream = getImageStreamFromUrl(session.message.attachments[0]);
+        //var stream = getImageStreamFromUrl(session.message.attachments[0]);
+        var streamURL = session.message.attachments[0].contentUrl;
         emotionService
-            .getEmotionFromStream(stream)
+            .getEmotionFromUrl(streamURL)
             .then(emotion => handleSuccessResponse(session, emotion))
             .catch(error => handleErrorResponse(session, error));
+        // emotionService
+        //     .getEmotionFromStream(stream)
+        //     .then(emotion => handleSuccessResponse(session, emotion))
+        //     .catch(error => handleErrorResponse(session, error));
         }
         else if(imageUrl = (parseAnchorTag(session.message.text) || (validUrl.isUri(session.message.text)? session.message.text : null))) {
         emotionService
             .getEmotionFromUrl(imageUrl)
             .then(emotion => handleSuccessResponse(session, emotion))
             .catch(error => handleErrorResponse(session, error));
-        }
-        else if(session.message.text == 'stop'){
-            session.endDialog("As you wish!");
         }
         else {
             session.send("Did you upload an image? I'm more of a visual person. Try sending me an image or an image URL");
