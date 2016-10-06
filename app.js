@@ -32,7 +32,7 @@ const recognizer = new builder.LuisRecognizer(model);
 var intents = new builder.IntentDialog({ recognizers: [recognizer] });
 
 // Setup intents 
-bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye|bye|see you/i }); 
+bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye|bye|see you|end|stop/i }); 
 bot.beginDialogAction('help', '/help', { matches: /^help|home|stuck/i }); 
 
 bot.dialog('/', intents);
@@ -76,13 +76,12 @@ bot.dialog('/play', [
     function (session) {
         var randNum = Math.floor(Math.random() * emotionList.length);
         session.userData.emotionSelected = emotionList[randNum];
-        builder.Prompts.attachment(session, "Send me a picture showing the emotion '" + emotionList[randNum] + "'");
+        builder.Prompts.text(session, "Send me a picture showing the emotion '" + emotionList[randNum] + "'");
     },
 
     function (session){
         if (hasImageAttachment(session)) {
             var imgURL = getImageStreamFromUrl(session.message.attachments[0]);
-            session.send(imgURL);
             emotionService
                 .getEmotionFromUrl(imgURL)
                 .then(emotion => handleSuccessResponse(session, emotion))
@@ -133,9 +132,8 @@ const getImageStreamFromUrl = attachment => {
             return needle.get(attachment.contentUrl, { headers: headers });
         });
     }
-
-    headers['Content-Type'] = attachment.contentType;
-    return needle.get(attachment.contentUrl, { headers: headers });
+    
+    return attachment.contentUrl
 }
 
 const isSkypeAttachment = attachment => {
