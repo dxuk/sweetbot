@@ -85,18 +85,11 @@ bot.dialog('/play', [
 
    function (session){
         if (hasImageAttachment(session)) {
-        //var iUrl = getImageStreamFromUrl(session.message.attachments[0]);
-        var iUrl = session.message.attachments[0].contentUrl;
-
+        var stream = session.message.attachments[0].contentUrl;    
         emotionService
-            .getEmotionFromUrl(iUrl)
+            .getEmotionFromStream(stream)
             .then(emotion => handleSuccessResponse(session, emotion))
-            .catch(error => handleErrorResponse(session, error));        
-
-        // emotionService
-        //     .getEmotionFromStream(stream)
-        //     .then(emotion => handleSuccessResponse(session, emotion))
-        //     .catch(error => handleErrorResponse(session, error));
+            .catch(error => handleErrorResponse(session, error));
         }
         else if(imageUrl = (parseAnchorTag(session.message.text) || (validUrl.isUri(session.message.text)? session.message.text : null))) {
         emotionService

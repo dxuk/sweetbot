@@ -1,13 +1,12 @@
 {
   "name": "sweetbot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Bot that gives sweets if you act the right emotion",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
-  "author": "Lilian Kasem",
-  "license": "ISC",
+  "auhor": "Lilian Kasem",
+  "license": "MIT",
   "dependencies": {
     "botbuilder": "^3.2.3",
     "dotenv-extended": "^1.0.3",
