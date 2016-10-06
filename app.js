@@ -127,12 +127,11 @@ const getImageStreamFromUrl = attachment => {
         connector.getAccessToken((error, token) => {
             var tok = token;
             headers['Authorization'] = 'Bearer ' + token;
-            headers['Content-Type'] = 'application/octet-stream';
 
             return needle.get(attachment.contentUrl, { headers: headers });
         });
     }
-    
+
     return attachment.contentUrl
 }
 
