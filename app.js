@@ -26,20 +26,22 @@ const connector = new builder.ChatConnector({
 const bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
 
-
+// LUIS
 const model = process.env.LUIS_MODEL;
 const recognizer = new builder.LuisRecognizer(model);
 var intents = new builder.IntentDialog({ recognizers: [recognizer] });
 
-bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye/i }); 
-bot.beginDialogAction('help', '/help', { matches: /^help/i }); 
+// Setup intents 
+bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye|bye|see you/i }); 
+bot.beginDialogAction('help', '/help', { matches: /^help|home|stuck/i }); 
 
 bot.dialog('/', intents);
 intents.matches('None', '/help')
-.matches('greeting', '/greeting')
+.matches('greeting', builder.DialogAction.send("Hey :)"))
+.matches('thank', builder.DialogAction.send(":)"))
+.matches(/^awesome|cool|great/i, builder.DialogAction.send("I know right!"))
 .matches('about', '/about')
 .matches('play', '/play')
-.matches(/^thanks/i, builder.DialogAction.send("You're welcome!"))
 .onDefault(builder.DialogAction.send("I'm sorry. I didn't understand."))
 
 //=========================================================
@@ -52,7 +54,7 @@ bot.on('conversationUpdate', message => {
             if (identity.id === message.address.bot.id) {
                 const reply = new builder.Message()
                     .address(message.address)
-                    .text("Hi! I am Sweet Bot. Welcome to the Microsoft stand here at Bot World! I can understand your emotions and if you play a game with me, you'll get a sweet! Ask me about the game :)");
+                    .text("Hi! I am Sweet Bot, welcome to the Microsoft stand here at Bot World. I can understand your emotions and if you play a game with me, you'll get a sweet! Ask me about the game :)");
                 bot.send(reply);
             }
         });
@@ -66,12 +68,8 @@ bot.dialog('/help', session => {
     session.endDialog("* start - starts the game \n* give me more - to keep playing \n* about - gives you information about this game \n* help - Displays these commands.");
 });
 
-bot.dialog('/greeting', session => {
-    session.endDialog("Hey!");
-});
-
 bot.dialog('/about', session => {
-    session.endDialog("The game is about guessing your emotions (don't worry! we do not store the photos). We use the Microsoft Emotions API to do this. \n If you want to play, let me know and I'll give you the emotion you need to act out, all you'll have to do is take a picture and send it to me. \n If you act out the correct emotion I will fire a request to the lovely sweet machine at the Microsoft Stand and you will get a sweet!");
+    session.endDialog("The game is about guessing your emotions (don't worry! we do not store the photos). We use the Microsoft Emotions API to do this. If you want to play, let me know and I'll give you the emotion you need to act out, all you'll have to do is take a picture and send it to me. If you act out the correct emotion I will fire a request to the lovely sweet machine at the Microsoft Stand and you will get a sweet!");
 });
 
 bot.dialog('/play', [
@@ -84,7 +82,6 @@ bot.dialog('/play', [
     function (session){
         if (hasImageAttachment(session)) {
             var stream = session.message.attachments[0].contentUrl;
-            session.send(stream);
             emotionService
                 .getEmotionFromUrl(stream)
                 .then(emotion => handleSuccessResponse(session, emotion))
@@ -106,7 +103,7 @@ bot.dialog('/play', [
 //=========================================================
 // Utilities
 //=========================================================
-var emotionList = [
+const emotionList = [
     "anger", 
     "contempt", 
     "disgust",
@@ -167,18 +164,17 @@ const parseAnchorTag = input => {
 const handleSuccessResponse = (session, emotion) => {
     if (emotion) {
         if(emotion == session.userData.emotionSelected){
-            session.endDialog("Nice! That's defintitly " + emotion + ". I'll speak to that machine and make sure you get something sweet :)");
-            // API call to Paul's sweet dispenser //
+            session.endDialog("Nice! That's definitely " + emotion + ". I'll speak to that machine and make sure you get something sweet :)");
+            // API call to Paul's sweet dispenser
         }
         else {
-            session.endDialog("I think that emotion is " + emotion + ". I'm looking for some thing more along the lines of " + session.userData.emotionSelected + ". Let's try something else!");
+            session.endDialog("I think that emotion is " + emotion + ". I was looking for some thing more along the lines of " + session.userData.emotionSelected + ". Let's try something else!");
             session.beginDialog('/play');
         }
     }
     else {
         session.send("Woops! I couldn't pick out an emotion from that picture :(");
     }
-
 }
 
 const handleErrorResponse = (session, error) => {
