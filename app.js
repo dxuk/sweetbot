@@ -90,7 +90,7 @@ bot.dialog('/play', [
             }else{  
                 var imgUrl = session.message.attachments[0].contentUrl;
                 emotionService
-                    .getEmotionFromUrl(imgURL)
+                    .getEmotionFromUrl(imgUrl)
                     .then(emotion => handleSuccessResponse(session, emotion))
                     .catch(error => handleErrorResponse(session, error));
             }
