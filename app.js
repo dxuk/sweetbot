@@ -82,10 +82,14 @@ bot.dialog('/play', [
     function (session){
         if (hasImageAttachment(session)) {
             var imgURL = getImageStreamFromUrl(session.message.attachments[0]);
-            emotionService
-                .getEmotionFromUrl(imgURL)
-                .then(emotion => handleSuccessResponse(session, emotion))
-                .catch(error => handleErrorResponse(session, error));
+            if(imgURL){
+                emotionService
+                    .getEmotionFromUrl(imgURL)
+                    .then(emotion => handleSuccessResponse(session, emotion))
+                    .catch(error => handleErrorResponse(session, error));
+            }else{
+                session.send("imgURL is undefined");
+            }
         }
         else if(imageUrl = (parseAnchorTag(session.message.text) || (validUrl.isUri(session.message.text)? session.message.text : null))) {
             emotionService
@@ -128,7 +132,7 @@ const getImageStreamFromUrl = attachment => {
         connector.getAccessToken((error, token) => {
             var tok = token;
             console.log("Got Token" + token);
-            
+
             headers['Authorization'] = 'Bearer ' + token;
             headers['Content-Type'] = 'application/octet-stream';
 
