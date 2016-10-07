@@ -81,7 +81,7 @@ bot.dialog('/play', [
 
     function (session){
         if (hasImageAttachment(session)) {
-            if (isSkypeAttachment(attachment)) {
+            if (isSkypeAttachment(session.message.attachments[0])) {
                 var stream = getImageStreamFromUrl(session.message.attachments[0]);
                 emotionService
                     .getEmotionFromStream(stream)
