@@ -88,15 +88,15 @@ bot.dialog('/play', [
                 // var bitmap = fs.readFileSync(stream);
                 // var imageData = new Buffer(bitmap.toString('binary'),'binary');
                   
-                var emotion = oxfordEmotion.recognize("image", stream, function(cb) {
-                    console.log(cb);
-                });
+                // var emotion = oxfordEmotion.recognize("image", stream, function(cb) {
+                //     console.log(cb);
+                // });
 
 
-                // emotionService
-                //     .getEmotionFromStream(stream)
-                //     .then(caption => handleSuccessResponse(session, caption))
-                //     .catch(error => handleErrorResponse(session, error));
+                emotionService
+                    .getEmotionFromStream(stream)
+                    .then(caption => handleSuccessResponse(session, caption))
+                    .catch(error => handleErrorResponse(session, error));
 
 
 
