@@ -81,16 +81,19 @@ bot.dialog('/play', [
 
     function (session){
         if (hasImageAttachment(session)) {
-            var stream = getImageStreamFromUrl(session.message.attachments[0]);
-            emotionService
-                .getEmotionFromStream(stream)
-                .then(caption => handleSuccessResponse(session, caption))
-                .catch(error => handleErrorResponse(session, error));
-
-            // emotionService
-            //     .getEmotionFromUrl(imgURL)
-            //     .then(emotion => handleSuccessResponse(session, emotion))
-            //     .catch(error => handleErrorResponse(session, error));
+            if (isSkypeAttachment(attachment)) {
+                var stream = getImageStreamFromUrl(session.message.attachments[0]);
+                emotionService
+                    .getEmotionFromStream(stream)
+                    .then(caption => handleSuccessResponse(session, caption))
+                    .catch(error => handleErrorResponse(session, error));
+            }else{  
+                var imgUrl = session.message.attachments[0].contentUrl;
+                emotionService
+                    .getEmotionFromUrl(imgURL)
+                    .then(emotion => handleSuccessResponse(session, emotion))
+                    .catch(error => handleErrorResponse(session, error));
+            }
         }
         else if(imageUrl = (parseAnchorTag(session.message.text) || (validUrl.isUri(session.message.text)? session.message.text : null))) {
             emotionService
