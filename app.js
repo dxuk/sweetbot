@@ -82,8 +82,8 @@ bot.dialog('/play', [
     function (session){
         if (hasImageAttachment(session)) {
             var stream = getImageStreamFromUrl(session.message.attachments[0]);
-            var jsonS = JSON.parse(stream);
-            session.send("stream:       " + jsonS.toString() + "______ ");
+            //var jsonS = JSON.parse(stream);
+            session.send("stream:       " + stream.toString() + "______ ");
             if(stream){
                 //session.send("imgURL:" + imgURL);
                 emotionService
