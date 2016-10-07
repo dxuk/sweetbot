@@ -131,10 +131,8 @@ const getImageStreamFromUrl = attachment => {
         // https://github.com/Microsoft/BotBuilder/issues/662
         connector.getAccessToken((error, token) => {
             var tok = token;
-            console.log("Got Token" + token);
 
             headers['Authorization'] = 'Bearer ' + token;
-            headers['Content-Type'] = 'application/octet-stream';
 
             return needle.get(attachment.contentUrl, { headers: headers });
         });
