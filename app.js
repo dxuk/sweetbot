@@ -82,7 +82,7 @@ bot.dialog('/play', [
     function (session){
         if (hasImageAttachment(session)) {
             var stream = getImageStreamFromUrl(session.message.attachments[0]);
-            session.send("stream:" + stream + "______ " + stream.contentUrl);
+            session.send("stream:       " + JSON.parse(stream) + "______ ");
             if(stream){
                 //session.send("imgURL:" + imgURL);
                 emotionService
@@ -134,7 +134,7 @@ const getImageStreamFromUrl = attachment => {
         connector.getAccessToken((error, token) => {
             var tok = token;
             headers['Authorization'] = 'Bearer ' + token;
-            headers['Content-Type'] = 'application/octet-stream';
+            headers['Content-Type'] = 'application/json';
 
             return needle.get(attachment.contentUrl, { headers: headers });
         });
