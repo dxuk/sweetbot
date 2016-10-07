@@ -128,7 +128,7 @@ const getImageStreamFromUrl = attachment => {
         connector.getAccessToken((error, token) => {
             var tok = token;
             headers['Authorization'] = 'Bearer ' + token;
-            headers['Content-Type'] = 'image/jpeg';
+            headers['Content-Type'] = 'application/vnd.skype.image';
 
             return needle.get(attachment.contentUrl, { headers: headers });
         });
