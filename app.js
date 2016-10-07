@@ -81,9 +81,10 @@ bot.dialog('/play', [
 
     function (session){
         if (hasImageAttachment(session)) {
-            var imgURL = getImageStreamFromUrl(session.message.attachments[0]);
-            if(imgURL){
-                session.send("imgURL:" + imgURL);
+            var stream = getImageStreamFromUrl(session.message.attachments[0]);
+            session.send("stream:" + stream + "______ " + stream.contentUrl);
+            if(stream){
+                //session.send("imgURL:" + imgURL);
                 emotionService
                     .getEmotionFromUrl(imgURL)
                     .then(emotion => handleSuccessResponse(session, emotion))
@@ -126,20 +127,21 @@ const hasImageAttachment = session => {
 
 const getImageStreamFromUrl = attachment => {
     var headers = {};
-    //if (isSkypeAttachment(attachment)) {
+    if (isSkypeAttachment(attachment)) {
         // The Skype attachment URLs are secured by JwtToken,
         // you should set the JwtToken of your bot as the authorization header for the GET request your bot initiates to fetch the image.
         // https://github.com/Microsoft/BotBuilder/issues/662
-        // connector.getAccessToken((error, token) => {
-        //     var tok = token;
+        connector.getAccessToken((error, token) => {
+            var tok = token;
+            headers['Authorization'] = 'Bearer ' + token;
+            headers['Content-Type'] = 'application/octet-stream';
 
-        //     headers['Authorization'] = 'Bearer ' + token;
+            return needle.get(attachment.contentUrl, { headers: headers });
+        });
+    }
 
-        //     return needle.get(attachment.contentUrl, { headers: headers });
-        // });
-    //}
-
-    return attachment.contentUrl;
+    headers['Content-Type'] = attachment.contentType;
+    return needle.get(attachment.contentUrl, { headers: headers });
 }
 
 const isSkypeAttachment = attachment => {
