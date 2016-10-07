@@ -82,17 +82,15 @@ bot.dialog('/play', [
     function (session){
         if (hasImageAttachment(session)) {
             var stream = getImageStreamFromUrl(session.message.attachments[0]);
-            //var jsonS = JSON.parse(stream);
-            session.send("stream:       " + stream.toString() + "______ ");
-            if(stream){
-                //session.send("imgURL:" + imgURL);
-                emotionService
-                    .getEmotionFromUrl(imgURL)
-                    .then(emotion => handleSuccessResponse(session, emotion))
-                    .catch(error => handleErrorResponse(session, error));
-            }else{
-                session.send("imgURL is undefined");
-            }
+            emotionService
+                .getEmotionFromStream(stream)
+                .then(caption => handleSuccessResponse(session, caption))
+                .catch(error => handleErrorResponse(session, error));
+
+            // emotionService
+            //     .getEmotionFromUrl(imgURL)
+            //     .then(emotion => handleSuccessResponse(session, emotion))
+            //     .catch(error => handleErrorResponse(session, error));
         }
         else if(imageUrl = (parseAnchorTag(session.message.text) || (validUrl.isUri(session.message.text)? session.message.text : null))) {
             emotionService
@@ -129,13 +127,10 @@ const hasImageAttachment = session => {
 const getImageStreamFromUrl = attachment => {
     var headers = {};
     if (isSkypeAttachment(attachment)) {
-        // The Skype attachment URLs are secured by JwtToken,
-        // you should set the JwtToken of your bot as the authorization header for the GET request your bot initiates to fetch the image.
-        // https://github.com/Microsoft/BotBuilder/issues/662
         connector.getAccessToken((error, token) => {
             var tok = token;
             headers['Authorization'] = 'Bearer ' + token;
-            headers['Content-Type'] = 'application/json';
+            headers['Content-Type'] = 'application/octet-stream';
 
             return needle.get(attachment.contentUrl, { headers: headers });
         });
