@@ -6,7 +6,8 @@ const builder = require('botbuilder'),
     needle = require("needle"),
     restify = require('restify'),
     url = require('url');
-    validUrl = require('valid-url');
+    validUrl = require('valid-url'),
+    oxfordEemotion = require("node-oxford-emotion")(process.env.MICROSOFT_EMOTION_API_KEY);
 
 //=========================================================
 // Bot Setup
@@ -83,10 +84,23 @@ bot.dialog('/play', [
         if (hasImageAttachment(session)) {
             if (isSkypeAttachment(session.message.attachments[0])) {
                 var stream = getImageStreamFromUrl(session.message.attachments[0]);
-                emotionService
-                    .getEmotionFromStream(stream)
-                    .then(caption => handleSuccessResponse(session, caption))
-                    .catch(error => handleErrorResponse(session, error));
+
+                // var bitmap = fs.readFileSync(stream);
+                // var imageData = new Buffer(bitmap.toString('binary'),'binary');
+                  
+                var emotion = oxfordEmotion.recognize("image", stream, function(cb) {
+                    console.log(cb);
+                });
+
+
+                // emotionService
+                //     .getEmotionFromStream(stream)
+                //     .then(caption => handleSuccessResponse(session, caption))
+                //     .catch(error => handleErrorResponse(session, error));
+
+
+
+
             }else{  
                 var imgUrl = session.message.attachments[0].contentUrl;
                 emotionService
