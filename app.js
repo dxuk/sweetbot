@@ -76,7 +76,7 @@ bot.dialog('/play', [
     function (session) {
         var randNum = Math.floor(Math.random() * emotionList.length);
         session.userData.emotionSelected = emotionList[randNum];
-        builder.Prompts.text(session, "Send me a picture showing the emotion '" + emotionList[randNum] + "'");
+        builder.Prompts.text(session, "Send me a picture showing the emotion '" + emotionList[randNum] + "'. Try sending me an image or an image URL");
     },
 
     function (session){
@@ -95,6 +95,7 @@ bot.dialog('/play', [
         }
         else {
             session.send("Did you upload an image? I'm more of a visual person. Try sending me an image or an image URL");
+            session.beginDialog('/play');
         }      
     }
 ]);
@@ -120,19 +121,19 @@ const hasImageAttachment = session => {
 
 const getImageStreamFromUrl = attachment => {
     var headers = {};
-    if (isSkypeAttachment(attachment)) {
+    //if (isSkypeAttachment(attachment)) {
         // The Skype attachment URLs are secured by JwtToken,
         // you should set the JwtToken of your bot as the authorization header for the GET request your bot initiates to fetch the image.
         // https://github.com/Microsoft/BotBuilder/issues/662
-        connector.getAccessToken((error, token) => {
-            var tok = token;
-            headers['Authorization'] = 'Bearer ' + token;
+        // connector.getAccessToken((error, token) => {
+        //     var tok = token;
+        //     headers['Authorization'] = 'Bearer ' + token;
 
-            return needle.get(attachment.contentUrl, { headers: headers });
-        });
-    }
+        //     return needle.get(attachment.contentUrl, { headers: headers });
+        // });
+    //}
 
-    return attachment.contentUrl
+    return attachment.contentUrl;
 }
 
 const isSkypeAttachment = attachment => {
