@@ -7,6 +7,7 @@ const builder = require('botbuilder'),
     restify = require('restify'),
     url = require('url');
     validUrl = require('valid-url'),
+    request = require('request').defaults({ encoding: null }),
     oxfordEemotion = require("node-oxford-emotion")(process.env.MICROSOFT_EMOTION_API_KEY);
 
 //=========================================================
@@ -38,7 +39,7 @@ bot.beginDialogAction('help', '/help', { matches: /^help|home|stuck/i });
 
 bot.dialog('/', intents);
 intents.matches('None', '/help')
-.matches('greeting', builder.DialogAction.send("Hey :)"))
+.matches('greeting', '/greeting')
 .matches('thank', builder.DialogAction.send(":)"))
 .matches(/^awesome|cool|great/i, builder.DialogAction.send("I know right!"))
 .matches('about', '/about')
@@ -65,6 +66,32 @@ bot.on('conversationUpdate', message => {
 //=========================================================
 // Bot Dialogs
 //=========================================================
+bot.dialog('/greeting', session => {
+        new Promise(
+        (resolve, reject) => {
+            const requestData = {
+                url: "http://sweetbotapi.azurewebsites.net/api/values",
+                headers: { 'content-type': 'application/json' },
+                json: { "score": 0, "user": session.message.user.name}
+            };
+
+            request.post(requestData, (error, response, body) => {
+                if (error) {
+                    reject(error);
+                }
+                else if (response.statusCode != 201) {
+                    reject(body);
+                }
+                else {
+                    resolve(body);
+                }
+            });
+        }
+    );
+
+    session.endDialog("Hey " + session.message.user.name + " :)");
+});
+
 bot.dialog('/help', session => {
     session.endDialog("* start - starts the game \n* give me more - to keep playing \n* about - gives you information about this game \n* help - Displays these commands.");
 });
@@ -83,6 +110,9 @@ bot.dialog('/play', [
     function (session){
         if (hasImageAttachment(session)) {
             if (isSkypeAttachment(session.message.attachments[0])) {
+                
+                //////////////////////////////////////    SKYPE IMAGE STREAM PROBLEM     ////////////////////////////////////////////////
+
                 var stream = getImageStreamFromUrl(session.message.attachments[0]);
 
                 // var bitmap = fs.readFileSync(stream);
@@ -98,8 +128,7 @@ bot.dialog('/play', [
                     .then(caption => handleSuccessResponse(session, caption))
                     .catch(error => handleErrorResponse(session, error));
 
-
-
+                 //////////////////////////////////////    SKYPE IMAGE STREAM PROBLEM     ////////////////////////////////////////////////
 
             }else{  
                 var imgUrl = session.message.attachments[0].contentUrl;
@@ -185,7 +214,30 @@ const handleSuccessResponse = (session, emotion) => {
     if (emotion) {
         if(emotion == session.userData.emotionSelected){
             session.endDialog("Nice! That's definitely " + emotion + ". I'll speak to that machine and make sure you get something sweet :)");
+
             // API call to Paul's sweet dispenser
+            new Promise(
+                (resolve, reject) => {
+                    const requestData = {
+                        url: "http://sweetbotapi.azurewebsites.net/api/values/add",
+                        headers: { 'content-type': 'application/json' }
+                    };
+
+                    request.get(requestData, (error, response, body) => {
+                        if (error) {
+                            reject(error);
+                        }
+                        else if (response.statusCode != 200) {
+                            reject(body);
+                        }
+                        else {
+                            resolve(body);
+                        }
+                    });
+                }
+            );
+
+
         }
         else {
             session.endDialog("I think that emotion is " + emotion + ". I was looking for some thing more along the lines of " + session.userData.emotionSelected + ". Let's try something else!");
