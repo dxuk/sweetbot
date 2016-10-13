@@ -70,16 +70,16 @@ bot.dialog('/greeting', session => {
         new Promise(
         (resolve, reject) => {
             const requestData = {
-                url: "http://sweetbotapi.azurewebsites.net/api/values",
+                url: "http://sweetbotapi.azurewebsites.net/api/values/1",
                 headers: { 'content-type': 'application/json' },
-                json: { "score": 0, "user": session.message.user.name}
+                json: { "user": session.message.user.name}
             };
 
-            request.post(requestData, (error, response, body) => {
+            request.put(requestData, (error, response, body) => {
                 if (error) {
                     reject(error);
                 }
-                else if (response.statusCode != 201) {
+                else if (response.statusCode != 200) {
                     reject(body);
                 }
                 else {
