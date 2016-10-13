@@ -70,8 +70,11 @@ bot.dialog('/greeting', session => {
         new Promise(
         (resolve, reject) => {
             const requestData = {
-                url: "http://sweetbotapi.azurewebsites.net/api/values/1",
-                headers: { 'content-type': 'application/json' },
+                url: "https://sweetbot.azure-api.net/api/values/1",
+                headers: { 
+                    'content-type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': process.env.SWEETBOT_API_KEY                 
+                },
                 json: { "user": session.message.user.name}
             };
 
@@ -219,8 +222,8 @@ const handleSuccessResponse = (session, emotion) => {
             new Promise(
                 (resolve, reject) => {
                     const requestData = {
-                        url: "http://sweetbotapi.azurewebsites.net/api/values/add",
-                        headers: { 'content-type': 'application/json' }
+                        url: "https://sweetbot.azure-api.net/api/values/add",
+                        headers: { 'Ocp-Apim-Subscription-Key': process.env.SWEETBOT_API_KEY }
                     };
 
                     request.get(requestData, (error, response, body) => {
